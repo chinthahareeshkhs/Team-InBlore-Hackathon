@@ -1,0 +1,11 @@
+input: write code in python to removes all the non utf-8 characters from the CSV file provided
+
+output: ```accelerator: def convert_csv_in_utf8(input_path,output_path):
+    try:
+        files = os.listdir(input_path)
+        for file_name in files:
+            with open(input_path+file_name, 'r', encoding='ANSI', errors='ignore') as infile:
+                with open(output_path+file_name.split('.')[0]+'_utf8.csv', 'w', encoding='utf-8') as outfile:
+                 outfile.write(infile.read())
+    except Exception as convert_csv_in_utf8:
+        print("Error in converting csv to utf8: " + str(convert_csv_in_utf8)) ```

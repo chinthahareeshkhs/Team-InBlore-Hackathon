@@ -1,0 +1,190 @@
+input: write code in python to compare if all the csv files have common headers
+
+output: ```accelerator: def compare_headers (input_file_list,sample_header): 
+    matching_files = []
+    non_matching_files = []
+    files_without_header = []
+    last_header = []
+    last_csv_file = []
+    
+    for input_csv_file in input_file_list:
+        with open(input_csv_file, 'r') as csvfile: #`with open(input_csv_file, 'r') as csvfile:` for Python 3
+            csv_test_bytes = csvfile.read(1024)  # Grab a sample of the CSV for format detection.
+            csvfile.seek(0)  # Rewind
+            has_header = csv.Sniffer().has_header(csv_test_bytes)  # Check to see if there's a header in the file.
+            dialect = csv.Sniffer().sniff(csv_test_bytes)  # Check what kind of csv/tsv file we have.
+            inputreader = csv.reader(csvfile)
+            header = []
+            if has_header:                                    #Proceed if file has header
+                header = next(inputreader)
+                if sample_header == []:                       #Proceed if user has not entered any header for matching
+                    if last_header == []:                     #To cater the first file in the list
+                        last_header = header 
+                        last_csv_file = input_csv_file
+                    else:
+                        if header == last_header:
+                            if last_csv_file != [] and last_csv_file not in matching_files:
+                                matching_files.append(last_csv_file)
+                            matching_files.append(input_csv_file)
+                            last_header = header 
+                            last_csv_file = input_csv_file
+                        else:
+                            non_matching_files.append(input_csv_file) #Add file to list of non matching files if header of file does not matches with that entered by the user
+                else:
+                    if last_header == []:                     #To cater the first file in the list
+                        if header == sample_header:           #Add file to list of matching files if header of file matches with that entered by the user
+                            matching_files.append(input_csv_file)
+                            last_header = header
+                            last_csv_file = input_csv_file
+                        else:
+                            non_matching_files.append(input_csv_file) #Add file to list of non matching files if header of file does not matches with that entered by the user
+                    else:
+                        if header == last_header:
+                            if last_csv_file != [] and last_csv_file not in matching_files:
+                                matching_files.append(last_csv_file)
+                            matching_files.append(input_csv_file)
+                            last_header = header
+                            last_csv_file = input_csv_file
+                        else:
+                            non_matching_files.append(input_csv_file) #Add file to list of non matching files if header of file does not matches with that entered by the user
+                
+            else:
+                files_without_header.append(input_csv_file)
+    
+    if len(files_without_header) == len(input_file_list):
+        print("No file have headers")
+    elif len(matching_files) == len(input_file_list):
+        print("All files have common headers")
+    elif len(non_matching_files) == len(input_file_list):
+        print("No file have common headers")
+    else:
+        print ("Following csv files have common headers")
+        print (matching_files)
+    if files_without_header != []:
+        print ("Following files does not have headers")
+        print (files_without_header) ```
+
+input: write code in python to fetch data from the Postgres database and convert it to a csv file
+
+output: ```accelerator: def pg_to_sftp():
+    for name,creds in sftp_creds.items():
+        try:
+            # Add your query here. The value inside parenthesis is passed dynamically.
+            query=f"""select * from l1.billing_query_tp where practice_name='{name}' 
+            and activity_date::date between current_date - interval '7 days' and current_date """
+            df=execute_query(query)
+            print(df)
+            str_date=date.today().strftime("%Y%m%d")
+            fn="data_backup"+"_"+str_date+".csv"
+            df.to_csv(f"tmp/{fn}",index=False)
+
+            # SFTP
+            host=creds[0]
+            port=int(creds[1])
+            username=creds[2]
+            password=creds[3]
+
+            source=f"tmp/{fn}"
+            target=target_sftp+f"/{fn}"
+            
+            transport = paramiko.Transport((host, port))
+            transport.connect(username = username, password = password)
+            sftp = paramiko.SFTPClient.from_transport(transport)
+            sftp.put(source,target)
+            sftp.close()
+            transport.close()
+            print(f"Successfully Transferred to {name} sftp")
+        except Exception as e:
+            print(f"Error : {e}") ```
+
+input: write code in python to delete the document data from the index in Elasticsearch based on the match condition
+
+output: ```accelerator: def delete_documents(self, index_name, field_to_match, value_to_match):
+
+        # Query to match the documents to be deleted
+        try:
+            query = {
+                "query": {
+                    "match": {
+                        field_to_match: value_to_match
+                    }
+                }
+            }
+
+            print(f"Deleting documents with value {value_to_match} from {index_name}.")
+
+            # Delete documents that match the query
+            res = self.__conn.delete_by_query(index=index_name, body=query)
+
+            # Print the number of deleted documents
+            print(f"Deleted {res['deleted']} documents from {index_name}.")
+
+        except Exception as e:
+            print(
+                f"Error in deleting data from index: {str(traceback.format_exc())}"
+            ) ```
+
+input: write code in python to replaces values in CSV either on S3 or locally on column or file levels
+
+output: ```accelerator: def replace_values_in_csv(
+    column_level_change, input_file_path, output_file_path, change_dict
+):
+    counter = 0
+    if (
+        column_level_change == "NO"
+    ):  # exectued in case of change irrescpective of columns
+        input_df = pd.read_csv(input_file_path)  # read input data
+        change_values = change_dict["1"]
+        input_values = change_values[0]  # read existing values
+        output_values = change_values[1]  # read new values
+        # check whether new values are present for each input value
+        if len(input_values) != len(output_values):
+            print("New values are not provided for all existing values.")
+        else:
+            # each input value will be replace with respective provided value
+            for j in range(len(input_values)):
+                replaced_df = input_df.replace(input_values[j], output_values[j])
+                input_df = replaced_df
+        replaced_df.to_csv(output_file_path)  # save replace dataframe at output path
+        print("Values replaced and file saved on output path successfully.")
+    else:  # exectued in case of change based on colums
+        input_df = pd.read_csv(input_file_path)  # read input data
+        input_columns = list(
+            input_df.columns.values
+        )  # list of columns present in dataframe
+        change_columns_list = list(
+            change_dict.keys()
+        )  # list of all columns provided for chnage in input
+        # Check whether input columns present in dataframe or not
+        for i in range(len(change_columns_list)):
+            if change_columns_list[i] not in input_columns:
+                print(
+                    "Below entered column does not exist in input file: "
+                    + change_columns_list[i]
+                )  # error if input column not present in dataframe
+                counter = counter + 1
+            else:
+                change_values = change_dict[change_columns_list[i]]
+                input_values = change_values[0]  # read existing values
+                output_values = change_values[1]  # read new values
+                # check whether new values are present for each input value
+                if len(input_values) != len(output_values):
+                    print(
+                        "New values are not provided for all existing values for "
+                        + change_columns_list[i]
+                        + " column."
+                    )
+                    counter = counter + 1
+                else:
+                    for j in range(len(input_values)):
+                        input_df[change_columns_list[i]] = input_df[
+                            change_columns_list[i]
+                        ].replace(input_values[j], output_values[j])
+        input_df.to_csv(output_file_path)  # save replace dataframe at output path
+        # check if one or more column contains error
+        if counter >= 1:
+            print(
+                "Values replaced for all success columns and file saved on output path successfully."
+            )
+        else:
+            print("Values replaced and file saved on output path successfully.") ```

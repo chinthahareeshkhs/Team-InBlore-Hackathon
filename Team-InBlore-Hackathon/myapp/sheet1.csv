@@ -1,0 +1,5 @@
+question,answer
+write a code to rename a file in a folder with timestamp in python,rename_with_timestamp
+write a code to rename a file in a folder with sequence in python,rename_with_sequence
+write a code to rename a file in a folder with extension in python,rename_with_extension
+write a code to alter filename of a file in a folder in python,alter_filename

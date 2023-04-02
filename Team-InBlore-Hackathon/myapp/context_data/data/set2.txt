@@ -1,0 +1,80 @@
+input: write code in python for last insertion details from s3 or snowflake
+
+output: ```accelerator: def last_insertion_detail(location):
+    if location.upper() == "S3":
+        print("Details required from : S3")
+        with open("test_input\inputs.json", "r") as file:
+            s3_inputs = json.load(file)
+        s3_connection(
+            s3_inputs["user_region"],
+            s3_inputs["user_access_key"],
+            s3_inputs["user_secret_key"],
+            s3_inputs["bucket_name"],
+        )
+    elif location.upper() == "SNOWFLAKE":
+        print("Details required from : Snowflake")
+        with open("test_input\inputs.json", "r") as file:
+            snowflake_inputs = json.load(file)
+        snowflake_connection(
+            snowflake_inputs["username"],
+            snowflake_inputs["password"],
+            snowflake_inputs["account_name"],
+            snowflake_inputs["warehouse_name"],
+            snowflake_inputs["database_name"],
+            snowflake_inputs["user_schema"],
+            snowflake_inputs["user_role"],
+            snowflake_inputs["table"],
+            snowflake_inputs["date_column"],
+        )
+    else:
+        print(
+            "Entered location is: "
+            + location
+            + " . Code is not configured to connect entered location."
+        ) ```
+
+input: write code in python to convert all the sheets inside the given XLSX file into multiple CSV files
+
+output: ```accelerator: def xlsx_to_csv_converter(input_file_nm: str,outupt_path: str):
+    try:
+        xls = pd.ExcelFile(input_file_nm)
+        for i in range(len(xls.sheet_names)):
+            df = pd.read_excel(xls, xls.sheet_names[i])
+            df.to_csv (outupt_path+xls.sheet_names[i]+ ".csv", index = None, header=True)
+    except Exception as xlsx_to_csv_converter_error:
+        print("Error in converting xlsx to csv" + str(xlsx_to_csv_converter_error))
+    return True ```
+
+input: write code in python to add header to csv file if it does not have one
+
+output: ```accelerator: def add_headers (input_file,input_header,output_file): 
+    
+    with open(input_file, 'r') as csvfile: # open file in read mode 
+        csv_test_bytes = csvfile.read(1024)    # Grab a sample of the CSV for format detection.
+        csvfile.seek(0)  # Rewind
+        has_header = csv.Sniffer().has_header(csv_test_bytes)  # Check to see if there's a header in the file.
+        dialect = csv.Sniffer().sniff(csv_test_bytes)  # Check what kind of csv/tsv file we have.
+        inputreader = csv.reader(csvfile)
+        if has_header == False: 
+            input_df = pd.read_csv(input_file, header=None)  # read the csv file in df
+            input_df.to_csv(output_file, header=input_header, index=False) # write the data of original csv file to another output file along with header
+            print ("Header is successfully added")
+        else:
+            print ("File already has header") # print the message if file already has a header ```
+
+input: write code in python to remove Erroneous New Lines in a CSV File
+
+output: ```accelerator: def transform_csv(input_file,output_file):
+
+    df = pd.read_csv('input_file')
+    #checking the number of empty rows in th csv file
+    print (df.isnull().sum())
+    #Droping the empty rows
+    modifiedDF = df.dropna()
+    # Removing extra lines between columns
+    modifiedDF.replace('\n', '', regex=True,inplace=True)
+    #modifiedDF.replace(to_replace=[r"\\n|\\r", "\n|\r"], value=["",""], regex=True,inplace=True)
+    #Saving it to the csv file 
+    modifiedDF.to_csv('output_file',index=False)
+
+    print("File is transformed") ```

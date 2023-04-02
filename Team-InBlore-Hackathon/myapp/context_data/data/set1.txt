@@ -1,0 +1,51 @@
+input: write code in python to rename a file in a folder with timestamp
+
+output: ```accelerator: def rename_with_timestamp(file_name,folder_path):
+    try:           
+        timestamp = datetime.datetime.now()
+        t = [timestamp.year,timestamp.month,timestamp.day,timestamp.hour,timestamp.minute,timestamp.second]
+        for i in range(len(t)):
+            t[i]=str(t[i])    
+        dt = '-'.join(t)
+        old_path = folder_path+file_name
+        new_path = folder_path+file_name.split('.')[0]+'_'+dt+'.'+file_name.split('.')[1]
+        os.rename(old_path,new_path)   
+    except Exception as rename_with_timestamp_error:
+        print("Error in renaming file with timestamp: " + str(rename_with_timestamp_error)) ```
+
+input: write code in python to rename a file in a folder with sequence
+
+output: ```accelerator: def rename_with_sequence(file_name,folder_path,number):
+    try:                 
+        old_path = folder_path+file_name
+        new_path = folder_path+str(number)+'.'+file_name.split('.')[1]
+        os.rename(old_path,new_path)   
+    except Exception as rename_with_sequence_error:
+        print("Error in renaming file with sequence: " + str(rename_with_sequence_error)) ```
+    
+input: write code in python to rename a file in a folder with extention
+
+output: ```accelerator: def rename_with_extension(file_name,folder_path,extension):
+    try:           
+        old_path = folder_path+file_name
+        new_path = folder_path+file_name.split('.')[0]+'.'+extension
+        os.rename(old_path,new_path)   
+    except Exception as rename_with_extension_error:
+        print("Error in renaming file with extension: " + str(rename_with_extension_error)) ```
+
+input: write code in python to alter filename of a file in a folder
+
+output: ```accelerator: def alter_filename(file_name_rule,directory_path):
+    try:
+        files = os.listdir(directory_path)
+        i=0
+        for f in files:
+            if(file_name_rule.strip().lower()=="timestamp"):
+                rename_with_timestamp(f,directory_path)
+            if(file_name_rule.strip().lower()=="extension"):
+                rename_with_extension(f,directory_path,extension)
+            if(file_name_rule.strip().lower()=="sequence"):
+                i=i+1
+                rename_with_sequence(f,directory_path,i)
+    except Exception as alter_filename_error:
+        print("Error in altering filenames: " + str(alter_filename_error)) ```
